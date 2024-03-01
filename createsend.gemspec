@@ -7,12 +7,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'json', '>= 1.0'
   s.add_runtime_dependency 'hashie', '~> 3.0'
   s.add_runtime_dependency 'httparty', '~> 0.14'
-  s.add_development_dependency 'rake', '~> 12.3.3'
-  s.add_development_dependency 'jnunemaker-matchy', '~> 0.4'
-  s.add_development_dependency 'shoulda-context', '~> 1.2'
-  s.add_development_dependency 'simplecov', '~> 0'
-  s.add_development_dependency 'coveralls', '~> 0'
-  s.add_development_dependency 'test-unit', '~>3.0'
   s.name = "createsend"
   s.author = "James Dennes"
   s.description = %q{Implements the complete functionality of the Campaign Monitor API.}
