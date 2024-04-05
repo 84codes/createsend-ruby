@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/helper'
+require_relative "helper"
 
 class CreateSendTest < Test::Unit::TestCase
 
@@ -221,7 +221,7 @@ class CreateSendTest < Test::Unit::TestCase
       countries.size.should be == 245
       assert countries.include? "Australia"
     end
-    
+
     should "get system date" do
       stub_get(@auth, "systemdate.json", "systemdate.json")
       systemdate = @cs.systemdate.SystemDate
@@ -234,7 +234,7 @@ class CreateSendTest < Test::Unit::TestCase
       timezones.size.should be == 97
       assert timezones.include? "(GMT+12:00) Fiji"
     end
-    
+
     should "get all administrators" do
       stub_get(@auth, "admins.json", "administrators.json")
       administrators = @cs.administrators
@@ -278,6 +278,29 @@ class CreateSendTest < Test::Unit::TestCase
         @template = CreateSend::Template.new @auth, '98y2e98y289dh89h938389'
       end
 
+      should "raise ClientError with the response body" do
+        error_fixture = "custom_api_error.json"
+        error_body = fixture_file(error_fixture)
+
+        stub_get(@auth, "countries.json", error_fixture, "418")
+
+        assert_raise_with_message(CreateSend::ClientError, "418: #{error_body}") do
+          @cs.countries
+        end
+      end
+
+      should "raise ServerError with response body" do
+        use_json_content_type = false
+        error_fixture = "error_response.txt"
+        error_body = fixture_file(error_fixture)
+
+        stub_get(@auth, "countries.json", error_fixture, "500", use_json_content_type)
+
+        assert_raise_with_message(CreateSend::ServerError, "500: #{error_body}") do
+          @cs.countries
+        end
+      end
+
       { ["400", "Bad Request"]       => CreateSend::BadRequest,
         ["401", "Unauthorized"]      => CreateSend::Unauthorized,
         ["404", "Not Found"]         => CreateSend::NotFound,
@@ -294,7 +317,7 @@ class CreateSendTest < Test::Unit::TestCase
 
         context "#{status.first}, a post" do
           should "raise a #{exception.name} error" do
-            stub_post(@auth, "clients.json", (status.first == '400' or status.first == '401') ? 'custom_api_error.json' : nil, status) 
+            stub_post(@auth, "clients.json", (status.first == '400' or status.first == '401') ? 'custom_api_error.json' : nil, status)
             lambda { CreateSend::Client.create @auth, "Client Company Name",
               "(GMT+10:00) Canberra, Melbourne, Sydney", "Australia" }.should raise_error(exception)
           end
@@ -303,7 +326,7 @@ class CreateSendTest < Test::Unit::TestCase
         context "#{status.first}, a put" do
           should "raise a #{exception.name} error" do
             stub_put(@auth, "templates/#{@template.template_id}.json", (status.first == '400' or status.first == '401') ? 'custom_api_error.json' : nil, status)
-            lambda { @template.update "Template One Updated", "http://templates.org/index.html", 
+            lambda { @template.update "Template One Updated", "http://templates.org/index.html",
               "http://templates.org/files.zip" }.should raise_error(exception)
           end
         end

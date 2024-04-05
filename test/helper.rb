@@ -37,11 +37,11 @@ def createsend_url(auth, url)
   result
 end
 
-def stub_request(method, auth, url, filename, status=nil)
+def stub_request(method, auth, url, filename, status=nil, json=true)
   options = {:body => ""}
   options.merge!({:body => fixture_file(filename)}) if filename
   options.merge!({:status => status}) if status
-  options.merge!(:content_type => "application/json; charset=utf-8")
+  options.merge!(:content_type => "application/json; charset=utf-8") if json
   createsend_url = createsend_url(auth, url)
   FakeWeb.register_uri(method, createsend_url, options)
 end

@@ -284,9 +284,9 @@ module CreateSend
       when 429
         raise TooManyRequests.new
       when 400...500
-        raise ClientError.new
+        raise ClientError.new("#{response.code}: #{response}")
       when 500...600
-        raise ServerError.new
+        raise ServerError.new("#{response.code}: #{response}")
       else
         response
       end
